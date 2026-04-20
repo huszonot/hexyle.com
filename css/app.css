@@ -1,0 +1,529 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #1a1a1a;
+  color: #f0f0f0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+:root {
+  --item-size: 100px;
+}
+
+/* ── Layout ── */
+
+#app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Sidebar ── */
+
+#sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: #111;
+  border-right: 1px solid #333;
+  overflow: hidden;
+}
+
+#product-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#sidebar-footer {
+  padding: 8px;
+  border-top: 1px solid #333;
+  flex-shrink: 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 24px 8px;
+  color: #888;
+  font-size: 0.875rem;
+}
+
+/* ── Product card ── */
+
+.product-card {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: grab;
+  user-select: none;
+  transition: border-color 0.15s, transform 0.1s;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.product-card:hover {
+  border-color: #555;
+  transform: translateY(-1px);
+}
+
+.product-card:active {
+  cursor: grabbing;
+  transform: translateY(0);
+}
+
+.product-card.dragging {
+  opacity: 0.4;
+}
+
+.product-card img {
+  display: block;
+  pointer-events: none;
+}
+
+.product-card .product-title {
+  font-size: 0.75rem;
+  color: #ccc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-card .product-price {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* ── Load more button ── */
+
+#load-more-btn {
+  width: 100%;
+  height: 44px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #ccc;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+#load-more-btn:hover {
+  background: #333;
+}
+
+/* ── Board container ── */
+
+#board-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #0d0d0d;
+}
+
+/* ── Carousel controls ── */
+
+#carousel-controls {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 0 16px;
+  height: 44px;
+}
+
+#carousel-controls button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: background 0.15s;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#carousel-controls button:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+#bg-counter {
+  display: none;
+  font-size: 0.8rem;
+  color: #ccc;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* ── Méret csúszka (bal oldalt) ── */
+
+#size-slider-container {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 16px 8px;
+  border-radius: 24px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#size-slider {
+  -webkit-appearance: slider-vertical;
+  appearance: slider-vertical;
+  width: 8px;
+  height: 150px;
+  cursor: ns-resize;
+}
+
+/* ── Board ── */
+
+#board {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#background-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Board drop indicator ── */
+
+#board.drag-over::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 3px dashed rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ── Placed items ── */
+
+.placed-item {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: var(--item-size);
+  height: var(--item-size);
+  cursor: grab;
+  user-select: none;
+  z-index: 20;
+}
+
+.placed-item:active,
+.placed-item.dragging {
+  cursor: grabbing;
+  z-index: 30;
+}
+
+.placed-item.dragging img {
+  opacity: 0.75;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.placed-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  transition: border-color 0.15s;
+  mix-blend-mode: multiply;
+}
+
+.placed-item:hover {
+  z-index: 25;
+}
+
+.placed-item:hover img {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.placed-item .remove-btn,
+.placed-item .dup-btn {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  color: #fff;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 31;
+  padding: 0;
+}
+
+.placed-item .remove-btn {
+  top: -8px;
+  right: -8px;
+  background: #e53e3e;
+  font-weight: bold;
+}
+
+.placed-item .dup-btn {
+  top: -8px;
+  left: -8px;
+  background: #3182ce;
+  font-size: 13px;
+}
+
+.placed-item:hover .remove-btn,
+.placed-item:hover .dup-btn {
+  display: flex;
+}
+
+/* ── Kamera / Fotó gomb ── */
+
+#camera-container {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+}
+
+#camera-btn,
+#image-btn {
+  background: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 8px;
+  color: #ddd;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0 16px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: background 0.15s, transform 0.1s;
+}
+
+#camera-btn:hover,
+#image-btn:hover {
+  background: #3a3a3a;
+  transform: translateY(-1px);
+}
+
+#camera-btn:active,
+#image-btn:active {
+  transform: translateY(0);
+}
+
+/* ── Új terv gomb ── */
+
+#new-plan-container {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 10;
+}
+
+#new-plan-btn {
+  background: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 8px;
+  color: #ddd;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0 20px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: background 0.15s, transform 0.1s;
+}
+
+#new-plan-btn:hover {
+  background: #3a3a3a;
+  transform: translateY(-1px);
+}
+
+#new-plan-btn:active {
+  transform: translateY(0);
+}
+
+/* ── Kosár gomb ── */
+
+#cart-container {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+#add-to-cart-btn {
+  background: #2d7d46;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0 20px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: background 0.15s, transform 0.1s, opacity 0.15s;
+}
+
+#add-to-cart-btn:hover {
+  background: #38a05a;
+  transform: translateY(-1px);
+}
+
+#add-to-cart-btn:active {
+  transform: translateY(0);
+}
+
+#add-to-cart-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+#cart-feedback {
+  font-size: 0.75rem;
+  border-radius: 4px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease, padding 0.2s ease;
+}
+
+#cart-feedback.cart-feedback-ok,
+#cart-feedback.cart-feedback-warn,
+#cart-feedback.cart-feedback-error {
+  max-height: 40px;
+  padding: 4px 10px;
+}
+
+.cart-feedback-ok {
+  background: rgba(45, 125, 70, 0.85);
+  color: #fff;
+}
+
+.cart-feedback-warn {
+  background: rgba(180, 130, 0, 0.85);
+  color: #fff;
+}
+
+.cart-feedback-error {
+  background: rgba(180, 40, 40, 0.85);
+  color: #fff;
+}
+
+/* ── Touch ghost ── */
+
+#touch-ghost {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  display: none;
+  opacity: 0.8;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  transform: translate(-50%, -50%);
+}
+
+/* ── Responsive (mobile) ── */
+
+@media (max-width: 768px) {
+  #app {
+    flex-direction: column-reverse;
+  }
+
+  #sidebar {
+    width: 100%;
+    height: 180px;
+    border-right: none;
+    border-top: 1px solid #333;
+  }
+
+  #product-list {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 8px;
+    gap: 8px;
+    touch-action: pan-x;
+  }
+
+  .product-card {
+    min-width: 100px;
+    flex-shrink: 0;
+    align-items: center;
+    text-align: center;
+  }
+
+  .product-card img {
+    width: 80px;
+    height: 80px;
+  }
+
+  #board-container {
+    flex: 1;
+    min-height: 0;
+  }
+
+  #json-output-container {
+    max-width: 90vw;
+  }
+}

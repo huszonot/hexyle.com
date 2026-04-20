@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hexyle Product Board</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div id="app">
+
+  <aside id="sidebar">
+    <div id="product-list">
+      <div class="loading">Termékek betöltése...</div>
+    </div>
+    <div id="sidebar-footer">
+      <button id="load-more-btn" style="display:none">További termékek</button>
+    </div>
+  </aside>
+
+  <main id="board-container">
+
+    <div id="carousel-controls">
+      <button id="prev-bg" aria-label="Előző háttér">&#8592;</button>
+      <span id="bg-counter"></span>
+      <button id="next-bg" aria-label="Következő háttér">&#8594;</button>
+    </div>
+
+    <div id="size-slider-container">
+      <input type="range" id="size-slider" min="40" max="100" value="100" orient="vertical" title="Elemek mérete">
+    </div>
+
+    <div id="camera-container">
+      <input type="file" id="image-input" accept="image/*" style="display: none;">
+      <button id="image-btn">🖼️ Kép</button>
+
+      <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;">
+      <button id="camera-btn">📷 Fotó</button>
+    </div>
+
+    <div id="board">
+      <img id="background-image" src="" alt="Háttér">
+      <!-- .placed-item elemek dinamikusan kerülnek ide -->
+    </div>
+
+    <div id="new-plan-container">
+      <button id="new-plan-btn">♻ Új terv</button>
+    </div>
+
+    <div id="cart-container">
+      <button id="add-to-cart-btn">🛒 Kosárba helyezés</button>
+      <div id="cart-feedback"></div>
+    </div>
+
+  </main>
+
+</div>
+
+<!-- Touch drag ghost element -->
+<img id="touch-ghost" src="" alt="">
+
+<!-- Shopify konfiguráció (szerkeszd a js/config.js fájlban) -->
+<script src="js/config.js"></script>
+<script src="js/state.js"></script>
+<script src="js/shopify.js"></script>
+<script src="js/board.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/carousel.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
