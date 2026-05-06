@@ -96,36 +96,26 @@ window.AppBoard = (() => {
     img.src = item.imageUrl;
     img.alt = item.imageAlt || item.title || '';
 
-    const removeBtn = document.createElement('button');
-    removeBtn.className = 'remove-btn';
-    removeBtn.innerHTML = '&times;';
-    removeBtn.title = 'Eltávolítás';
-    removeBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      removePlacedItem(item.elId);
-      el.remove();
-    });
-
-    const dupBtn = document.createElement('button');
-    dupBtn.className = 'dup-btn';
-    dupBtn.innerHTML = '⧉';
-    dupBtn.title = 'Másolás';
-    dupBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      const slider = document.getElementById('size-slider');
-      const itemW = slider ? parseInt(slider.value, 10) : 100;
-      const hexHeight = itemW * (Math.sqrt(3) / 2);
-      const D = hexHeight + 3;
-      const stepX = D * (Math.sqrt(3) / 2);
-      const pos   = snapToHoneycomb(item.x + stepX, item.y);
-      const copy  = { ...item, elId: uid(), x: pos.x, y: pos.y, col: pos.col, row: pos.row };
-      addPlacedItem(copy);
-      renderPlacedItem(copy);
-    });
-
     el.appendChild(img);
-    el.appendChild(removeBtn);
-    el.appendChild(dupBtn);
+
+    let rotation = 0;
+    let lastClickTime = 0;
+
+    function setRotation(deg) {
+      rotation = deg;
+      el.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
+    }
+
+    function handleTap() {
+      const now = Date.now();
+      if (now - lastClickTime < 300) {
+        removePlacedItem(item.elId);
+        el.remove();
+      } else {
+        setRotation(rotation + 30);
+      }
+      lastClickTime = now;
+    }
 
     // ── Mouse drag (desktop) ──
     el.addEventListener('mousedown', e => {
@@ -133,15 +123,16 @@ window.AppBoard = (() => {
       e.preventDefault();
       e.stopPropagation();
 
-      const bRect   = board().getBoundingClientRect();
       const elRect  = el.getBoundingClientRect();
       // Eltolás: hol fogtuk meg az elemen belül (középponttól mérve)
       const offsetX = e.clientX - (elRect.left + elRect.width  / 2);
       const offsetY = e.clientY - (elRect.top  + elRect.height / 2);
 
+      let dragged = false;
       el.classList.add('dragging');
 
       function onMouseMove(e) {
+        dragged = true;
         const b = board().getBoundingClientRect();
         const curX = e.clientX - offsetX - (b.left + b.width / 2);
         const curY = e.clientY - offsetY - (b.top + b.height / 2);
@@ -153,6 +144,11 @@ window.AppBoard = (() => {
         el.classList.remove('dragging');
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup',   onMouseUp);
+
+        if (!dragged) {
+          handleTap();
+          return;
+        }
 
         const b = board().getBoundingClientRect();
         const rawX = e.clientX - offsetX - (b.left + b.width / 2);
@@ -174,7 +170,8 @@ window.AppBoard = (() => {
       const currentTime = new Date().getTime();
       const tapLength = currentTime - lastTapTime;
       if (tapLength < 300 && tapLength > 0) {
-        removeBtn.click();
+        removePlacedItem(item.elId);
+        el.remove();
         e.preventDefault();
         return;
       }
@@ -189,8 +186,10 @@ window.AppBoard = (() => {
       const offsetY = touch.clientY - (elRect.top  + elRect.height / 2);
 
       el.classList.add('dragging');
+      let touchDragged = false;
 
       function onTouchMove(e) {
+        touchDragged = true;
         e.preventDefault();
         const t = e.touches[0];
         const b = board().getBoundingClientRect();
@@ -204,6 +203,11 @@ window.AppBoard = (() => {
         el.classList.remove('dragging');
         el.removeEventListener('touchmove', onTouchMove);
         el.removeEventListener('touchend',  onTouchEnd);
+
+        if (!touchDragged) {
+          handleTap();
+          return;
+        }
 
         const t = e.changedTouches[0];
         const b = board().getBoundingClientRect();

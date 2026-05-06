@@ -279,42 +279,6 @@ body {
   border-color: rgba(255, 255, 255, 0.5);
 }
 
-.placed-item .remove-btn,
-.placed-item .dup-btn {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  color: #fff;
-  font-size: 11px;
-  line-height: 1;
-  cursor: pointer;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 31;
-  padding: 0;
-}
-
-.placed-item .remove-btn {
-  top: -8px;
-  right: -8px;
-  background: #e53e3e;
-  font-weight: bold;
-}
-
-.placed-item .dup-btn {
-  top: -8px;
-  left: -8px;
-  background: #3182ce;
-  font-size: 13px;
-}
-
-.placed-item:hover .remove-btn,
-.placed-item:hover .dup-btn {
-  display: flex;
-}
 
 /* ── Kamera / Fotó gomb ── */
 
