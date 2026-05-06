@@ -112,7 +112,7 @@ window.AppBoard = (() => {
         removePlacedItem(item.elId);
         el.remove();
       } else {
-        setRotation(rotation + 30);
+        setRotation(rotation + 60);
       }
       lastClickTime = now;
     }
